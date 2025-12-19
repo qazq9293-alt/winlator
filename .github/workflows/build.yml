@@ -1,0 +1,33 @@
+name: Build_Winlator_v10_RPCS3_Edition
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Optimization_Flags
+        run: |
+          # Додаємо прапорці для прискорення обчислень
+          export CFLAGS="-O3 -pipe -march=armv8.2-a+fp16+rcpc+dotprod"
+          export CXXFLAGS="-O3 -pipe -march=armv8.2-a+fp16+rcpc+dotprod"
+
+      - name: Build_APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug -PversionName="v10-RPCS3-Ultra"
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: Winlator-v10-RPCS3-APK
+          path: app/build/outputs/apk/debug/*.apk
